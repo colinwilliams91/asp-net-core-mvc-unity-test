@@ -1,3 +1,5 @@
+using asp_net_core_mvc_unity_test.Utilities;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,7 +16,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(CustomStaticFileOptions.GetOptions());
 
 app.UseRouting();
 
