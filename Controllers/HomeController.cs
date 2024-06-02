@@ -15,7 +15,8 @@ namespace asp_net_core_mvc_unity_test.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            //return View();
+            return Redirect(".\\FluidSynth_Test_Build\\index.html");
         }
 
         public IActionResult Privacy()
