@@ -29,13 +29,16 @@ namespace asp_net_core_mvc_unity_test.Utilities
             // interface method used when the app tries to find a MIME mapping for a served static file 
             public bool TryGetContentType(string filePath, out string contentType)
             {
+                ArgumentNullException.ThrowIfNullOrEmpty(filePath);
+                
                 // If this is a compressed file we need to get the actual extension
                 var extension = Path.GetExtension(filePath);
                 if (extension == GZIP_EXTENSION || extension == BROTLI_EXTENSION)
                 {
                     // Cutting off the .gz or .br extension and get the actual extension
                     // e.g. "Build/something/image.png.gz" -> "Build/something/image.png" -> ".png"
-                    filePath = filePath[..^extension.Length];
+                    // TODO: test if below is the same as above...
+                    filePath = Path.GetFileNameWithoutExtension(filePath);
                     extension = Path.GetExtension(filePath);
                 }
 
@@ -52,7 +55,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
                 ContentTypeProvider = fileTypeProvider,
                 OnPrepareResponse = (context) =>
                 {
-                    // In addition to the MIME type also set the according encoding header (the logic inside the if parens could be its own class fn?)
+                    // In addition to the MIME type also set the according encoding header TODO: the logic inside the if parens could be its own method?
                     if (CustomContentTypeProvider.COMPRESSION_ENCODINGS.TryGetValue(Path.GetExtension(context.File.Name), out var encoding))
                     {
                         context.Context.Response.Headers["Content-Encoding"] = encoding;
