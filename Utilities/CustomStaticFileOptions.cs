@@ -4,7 +4,8 @@ namespace asp_net_core_mvc_unity_test.Utilities
 {
     /// <summary>
     /// Handles WebGL specific <see langword="MIME"/> and <see langword="ContentEncoding"/>
-    /// types and file path handling for the <see langword="Gzip"/> and <see langword="Brotli"/> compressions.
+    /// types and file path handling for the <see langword="Gzip"/> and <see langword="Brotli"/> compressions.<br/>
+    /// Inteded for <see cref="WebApplication.UseStaticFiles"/> request middleware pipeline
     /// </summary>
     /// <remarks>
     /// Also exposes <see cref="CustomContentTypeProvider.AddCompressionEncoding"/><br/>
@@ -24,7 +25,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
         public static IReadOnlyDictionary<string, string> CompressionEncodings => _compressionEncodings;
 
         /// <summary>
-        /// Exposes custom <see cref="StaticFileOptions"/> for middleware pipeline
+        /// Exposes custom <see cref="StaticFileOptions"/> for request middleware pipeline
         /// </summary>
         /// <remarks>
         /// Handles identifying correct file types from compressed files for <see langword="MIME"/>
@@ -50,7 +51,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
 
         /// <summary>
         /// Handles the MIME type mapping for <see cref="StaticFileOptions"/>
-        /// to pass to <see cref="WebApplication.UseStaticFiles"/> middleware pipeline config
+        /// to pass to <see cref="WebApplication.UseStaticFiles"/> request middleware pipeline config
         /// </summary>
         /// <remarks>
         /// <see cref="FileExtensionContentTypeProvider"/> IDictionary property already handles<br/>
