@@ -4,22 +4,34 @@ using Microsoft.AspNetCore.StaticFiles;
 namespace asp_net_core_mvc_unity_test.Utilities
 {
     /// <summary>
-    /// Handles WebGL specific MIME and encoding types as well as file path handling for the Gzip and Brotli compressions.
-    /// Also exposes method for extending additional COMPRESSION_ENCODING types: AddCompressionEncoding
+    /// Handles WebGL specific <see langword="MIME"/> and <see langword="ContentEncoding"/>
+    /// types and file path handling for the <see langword="Gzip"/> and <see langword="Brotli"/> compressions.
     /// </summary>
+    /// <remarks>
+    /// Also exposes <see cref="CustomContentTypeProvider.AddCompressionEncoding"/><br/>
+    /// method for extending additional <see cref="CustomStaticFileOptions.CompressionEncodings"/> types
+    /// </remarks>
     public static class CustomStaticFileOptions
     {
         private const string GZIP_EXTENSION = ".gz";
         private const string BROTLI_EXTENSION = ".br";
 
-        private static readonly Dictionary<string, string> COMPRESSION_ENCODINGS = new ()
+        private static readonly Dictionary<string, string> _compressionEncodings = new ()
         {
             { GZIP_EXTENSION, "gzip" },
             { BROTLI_EXTENSION, "br" }
         };
 
-        public static IReadOnlyDictionary<string, string> CompressionEncodings => COMPRESSION_ENCODINGS;
+        public static IReadOnlyDictionary<string, string> CompressionEncodings => _compressionEncodings;
 
+        /// <summary>
+        /// Exposes custom <see cref="StaticFileOptions"/> for middleware pipeline
+        /// </summary>
+        /// <remarks>
+        /// Handles identifying correct file types from compressed files for <see langword="MIME"/>
+        /// types and <see langword="ContentEncoding"/> response Headers
+        /// </remarks>
+        /// <returns>Returns custom <see cref="StaticFileOptions"/></returns>
         public static StaticFileOptions GetOptions()
         {
             var customFileTypeProvider = new CustomContentTypeProvider();
@@ -31,6 +43,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
                     // In addition to the MIME type also set the according encoding header TODO: the logic inside the if parens could be its own method?
                     if (CompressionEncodings.TryGetValue(Path.GetExtension(context.File.Name), out string? encoding))
                     {
+                        Console.WriteLine(encoding);
                         context.Context.Response.Headers.ContentEncoding = encoding;
                     }
                 }
@@ -40,12 +53,12 @@ namespace asp_net_core_mvc_unity_test.Utilities
         /// <summary>
         /// Handles the MIME type mapping for <see cref="StaticFileOptions"/>
         /// to pass to <see cref="WebApplication.UseStaticFiles"/> middleware pipeline config
-        /// <remarks>
-        /// <see cref="FileExtensionContentTypeProvider"/> IDictionary property already handles
-        /// the MIME type mappings for the 380 most commonly used file types this extends it 
-        /// for Unity WebGL build .data file extension type and according MIME type
-        /// </remarks>
         /// </summary>
+        /// <remarks>
+        /// <see cref="FileExtensionContentTypeProvider"/> IDictionary property already handles<br/>
+        /// the MIME type mappings for the 380 most commonly used file types 
+        /// this extends it for Unity WebGL build .data file extension type and according MIME type
+        /// </remarks>
         private class CustomContentTypeProvider : IContentTypeProvider
         {
             private readonly FileExtensionContentTypeProvider fileTypeProvider = new();
@@ -58,22 +71,20 @@ namespace asp_net_core_mvc_unity_test.Utilities
             #region Private Class Methods
             /// <summary>
             /// Interface method used when the app tries to find a MIME mapping for a served static file
-            /// Leveraging System.IO.Path methods normalizes path separators
+            /// Handles truncating file compression extension so Headers can be properly mapped
             /// </summary>
             /// <example>
             /// Truncating the .gz or .br compression extension and get the actual extension
             /// "Build\something\image.png.gz" -> "Build\something\image.png" -> ".png"
             /// </example>
             /// <remarks>
-            /// Edge Case: <see cref="Path.GetDirectoryName"/>
-            /// "root directory" arg returns null however <see cref="Path.Combine"/>
-            /// leverages <see cref="Path.CombineInternal"/> handling null or empty...
+            /// Leveraging <see cref="System.IO.Path"/> methods normalizes path separators.<br/>
+            /// Edge Case: <see cref="Path.GetDirectoryName"/> "root directory" arg returns null<br/>
+            /// However <see cref="Path.Combine"/> leverages <see langword="Path.CombineInternal"/> handling null or empty
             /// But I pass string.Empty so the interpreter stops complaining
             /// </remarks>
             /// <param name="filePath">Static file path string containing compression extension</param>
-            /// <param name="contentType">
-            /// Code smell out param from eventual .NET<see cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/>
-            /// </param>
+            /// <param name="contentType"> Code smell out param .NET<see cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/></param>
             /// <returns>The according MIME type</returns>
             public bool TryGetContentType(string filePath, out string contentType)
             {
@@ -81,8 +92,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
 
                 // Gets the last "." exentsion (compression type)
                 var extension = Path.GetExtension(filePath);
-                // TODO: extend -- if (COMPRESSION_ENCODINGS.ContainsKey(extension))
-                if (extension == GZIP_EXTENSION || extension == BROTLI_EXTENSION)
+                if (_compressionEncodings.ContainsKey(extension))
                 {
                     var filePathDirectory = Path.GetDirectoryName(filePath);
                     var fileNameTruncated = Path.GetFileNameWithoutExtension(filePath);
@@ -103,7 +113,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
                 ArgumentNullException.ThrowIfNullOrWhiteSpace(extension);
                 ArgumentNullException.ThrowIfNullOrWhiteSpace(encoding);
 
-                return COMPRESSION_ENCODINGS.TryAdd(extension, encoding);
+                return _compressionEncodings.TryAdd(extension, encoding);
             }
             #endregion
         }
