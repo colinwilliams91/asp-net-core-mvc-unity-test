@@ -69,7 +69,8 @@ namespace asp_net_core_mvc_unity_test.Utilities
             #region Private Class Methods
             /// <summary>
             /// Interface method used when the app tries to find a MIME mapping for a served static file<br/>
-            /// Handles truncating file compression extension so actual File <see langword="ContentType"/> can be properly mapped by their extensions
+            /// Handles truncating file compression extension so actual File
+            /// <see langword="ContentType"/> can be properly mapped by their extensions
             /// </summary>
             /// <example>
             /// Truncating the .gz or .br compression extension and get the actual extension
@@ -82,7 +83,9 @@ namespace asp_net_core_mvc_unity_test.Utilities
             /// But I pass string.Empty so the interpreter stops complaining
             /// </remarks>
             /// <param name="filePath">Static file path string containing compression extension</param>
-            /// <param name="contentType"> Code smell out param .NET<see cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/></param>
+            /// <param name="contentType"> Code smell out param .NET
+            /// <see cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/>
+            /// </param>
             /// <returns>The according MIME type</returns>
             public bool TryGetContentType(string filePath, out string contentType)
             {
