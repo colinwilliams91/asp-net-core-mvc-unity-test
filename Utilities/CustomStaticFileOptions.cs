@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.StaticFiles;
+﻿using Microsoft.AspNetCore.StaticFiles;
 
 namespace asp_net_core_mvc_unity_test.Utilities
 {
@@ -38,12 +37,11 @@ namespace asp_net_core_mvc_unity_test.Utilities
             return new StaticFileOptions
             {
                 ContentTypeProvider = customFileTypeProvider,
-                OnPrepareResponse = (context) =>
+                OnPrepareResponse = (StaticFileResponseContext context) =>
                 {
-                    // In addition to the MIME type also set the according encoding header TODO: the logic inside the if parens could be its own method?
+                    // In addition to the MIME type also set the according encoding header (e.g. "br")
                     if (CompressionEncodings.TryGetValue(Path.GetExtension(context.File.Name), out string? encoding))
                     {
-                        Console.WriteLine(encoding);
                         context.Context.Response.Headers.ContentEncoding = encoding;
                     }
                 }
@@ -70,8 +68,8 @@ namespace asp_net_core_mvc_unity_test.Utilities
 
             #region Private Class Methods
             /// <summary>
-            /// Interface method used when the app tries to find a MIME mapping for a served static file
-            /// Handles truncating file compression extension so Headers can be properly mapped
+            /// Interface method used when the app tries to find a MIME mapping for a served static file<br/>
+            /// Handles truncating file compression extension so actual File <see langword="ContentType"/> can be properly mapped by their extensions
             /// </summary>
             /// <example>
             /// Truncating the .gz or .br compression extension and get the actual extension
@@ -90,7 +88,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
             {
                 ArgumentNullException.ThrowIfNullOrWhiteSpace(filePath);
 
-                // Gets the last "." exentsion (compression type)
+                // Gets the last "." exentsion (compression type) and truncates it
                 var extension = Path.GetExtension(filePath);
                 if (_compressionEncodings.ContainsKey(extension))
                 {
