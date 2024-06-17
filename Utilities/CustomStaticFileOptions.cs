@@ -11,7 +11,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
         private const string GZIP_EXTENSION = ".gz";
         private const string BROTLI_EXTENSION = ".br";
 
-        private static Dictionary<string, string> COMPRESSION_ENCODINGS = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> COMPRESSION_ENCODINGS = new ()
         {
             { GZIP_EXTENSION, "gzip" },
             { BROTLI_EXTENSION, "br" }
@@ -72,14 +72,14 @@ namespace asp_net_core_mvc_unity_test.Utilities
 
         public static StaticFileOptions GetOptions()
         {
-            var fileTypeProvider = new CustomContentTypeProvider();
+            var customFileTypeProvider = new CustomContentTypeProvider();
             return new StaticFileOptions
             {
-                ContentTypeProvider = fileTypeProvider,
+                ContentTypeProvider = customFileTypeProvider,
                 OnPrepareResponse = (context) =>
                 {
                     // In addition to the MIME type also set the according encoding header TODO: the logic inside the if parens could be its own method?
-                    if (CompressionEncodings.TryGetValue(Path.GetExtension(context.File.Name), out var encoding))
+                    if (CompressionEncodings.TryGetValue(Path.GetExtension(context.File.Name), out string? encoding))
                     {
                         context.Context.Response.Headers["Content-Encoding"] = encoding;
                     }
