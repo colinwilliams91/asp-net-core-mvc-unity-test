@@ -81,7 +81,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
                     // In addition to the MIME type also set the according encoding header TODO: the logic inside the if parens could be its own method?
                     if (CompressionEncodings.TryGetValue(Path.GetExtension(context.File.Name), out string? encoding))
                     {
-                        context.Context.Response.Headers["Content-Encoding"] = encoding;
+                        context.Context.Response.Headers.ContentEncoding = encoding;
                     }
                 }
             };
