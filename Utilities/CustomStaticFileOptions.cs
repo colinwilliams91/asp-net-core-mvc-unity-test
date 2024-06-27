@@ -103,7 +103,9 @@ namespace asp_net_core_mvc_unity_test.Utilities
                     filePath = Path.Combine(filePathDirectory ?? string.Empty, fileNameTruncated);
                 }
 
+#pragma warning disable CS8601 // Possible null reference assignment.
                 return fileTypeProvider.TryGetContentType(filePath, out contentType);
+#pragma warning restore CS8601 // Possible null reference assignment.
             }
 
             /// <summary>
