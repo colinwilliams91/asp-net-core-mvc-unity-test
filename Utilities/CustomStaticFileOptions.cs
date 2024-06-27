@@ -16,6 +16,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
         private const string GZIP_EXTENSION = ".gz";
         private const string BROTLI_EXTENSION = ".br";
 
+        // This Dictionary will be used to look up if a file's extension type is a compression type
         private static readonly Dictionary<string, string> _compressionEncodings = new ()
         {
             { GZIP_EXTENSION, "gzip" },
@@ -70,8 +71,7 @@ namespace asp_net_core_mvc_unity_test.Utilities
             #region Private Class Methods
             /// <summary>
             /// Interface method used when the app tries to find a MIME mapping for a served static file<br/>
-            /// Handles truncating file compression extension so actual File
-            /// <see langword="ContentType"/> can be properly mapped by their extensions
+            /// Handles truncating file compression extension so actual File <see langword="ContentType"/> can be properly mapped by its file type extension
             /// </summary>
             /// <example>
             /// Truncating the .gz or .br compression extension and get the actual extension
@@ -92,8 +92,10 @@ namespace asp_net_core_mvc_unity_test.Utilities
             {
                 ArgumentNullException.ThrowIfNullOrWhiteSpace(filePath);
 
-                // Gets the last "." exentsion (compression type) and truncates it
+                // Gets the last "." exentsion (compression type ".gz" from "file.png.gz" if multiple extensions exist)
                 var extension = Path.GetExtension(filePath);
+
+                // If extension is a compression type extension (e.g. ".gz") truncates it to expose base file extension (e.g. ".png")
                 if (_compressionEncodings.ContainsKey(extension))
                 {
                     var filePathDirectory = Path.GetDirectoryName(filePath);
@@ -105,7 +107,8 @@ namespace asp_net_core_mvc_unity_test.Utilities
             }
 
             /// <summary>
-            /// Method to add new compression mappings
+            /// Method to add new compression mappings. Follow this pattern: 
+            /// <see langword="extension"/> -> ".gz" (compresision type extension) <see langword="encoding"/> -> "gzip" (compression name)
             /// </summary>
             /// <param name="extension">A File extension like ".gz"</param>
             /// <param name="encoding">The correct encoding type for the file extension type like "gzip"</param>
